@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Simulation</title>
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 24px;
+            color: white;
+            background-color: black;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        input[type="number"] {
+            width: 150px;
+            font-size: 24px;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        button {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 24px;
+            padding: 10px 20px;
+            margin: 10px;
+            color: black;
+            background-color: gray;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Stock Market Simulation</h1>
+    <div id="output"></div>
+    <div id="controls">
+        <input type="number" id="quantity" placeholder="Quantity">
+        <br>
+        <button onclick="buyStock()">Buy</button>
+        <button onclick="sellStock()">Sell</button>
+    </div>
+    <div id="gameOver" style="display: none;">
+        <h2>Game Over</h2>
+        <p>Final Stats:</p>
+        <p>Starting Score: <span id="highestNetWorth"></span></p>
+        <p>Final Score: <span id="finalScore"></span></p>
+        <p>Money Made/Lost: <span id="moneyChange"></span></p>
+        <button onclick="resetGame()">Try Again</button>
+    </div>
+    <script>
+        let stockOwned = 0;
+        let stockPrice = 10;
+        let money = 100;
+        let value = 0;
+        let netWorth = money + value;
+        let daysLeft = 5;
+        let highestNetWorth = netWorth;
+        let startingMoney = money;
+
+        function buyStock() {
+            let quantity = parseInt(document.getElementById("quantity").value);
+            if (isNaN(quantity) || quantity <= 0) {
+                alert("Please enter a valid quantity.");
+                return;
+            }
+            if (stockPrice * quantity > money) {
+                alert("You don't have enough money to buy that many stocks. Please try again.");
+                return;
+            }
+            money -= stockPrice * quantity;
+            stockOwned += quantity;
+            netWorth = money + (stockOwned * stockPrice);
+            updateDisplay();
+            updateDayAndPrice();
+        }
+        
+        function sellStock() {
+            let quantity = parseInt(document.getElementById("quantity").value);
+            if (isNaN(quantity) || quantity <= 0) {
+                alert("Please enter a valid quantity.");
+                return;
+            }
+            if (quantity > stockOwned) {
+                alert("You don't own enough stocks to sell that many. Please try again.");
+                return;
+            }
+            money += stockPrice * quantity;
+            stockOwned -= quantity;
+            netWorth = money + (stockOwned * stockPrice);
+            updateDisplay();
+            updateDayAndPrice();
+        }
+
+        function updateDayAndPrice() {
+    if (daysLeft > 0) {
+        daysLeft--;
+        stockPrice = Math.floor(Math.random() * 50) + 1;
+        updateDisplay();
+    } else {
+        gameOver();
+    }
+}
+
+function updateDisplay() {
+    let output = document.getElementById('output');
+    output.innerHTML = `
+        <p>Day ${daysLeft}</p>
+        <p>Welcome. The stock price is ${stockPrice}</p>
+        <p>Your bank balance is ${money}</p>
+        <p>Your net worth is ${netWorth}</p>
+        <p>You own ${stockOwned} stocks</p>
+    `;
+}
+
+function gameOver() {
+    document.getElementById('controls').style.display = 'none';
+    document.getElementById('gameOver').style.display = 'block';
+    document.getElementById('highestNetWorth').textContent = highestNetWorth;
+    document.getElementById('finalScore').textContent = netWorth;
+    let moneyChange = netWorth - startingMoney;
+    document.getElementById('moneyChange').textContent = moneyChange >= 0 ? "+" + moneyChange : moneyChange;
+}
+
+function resetGame() {
+    stockOwned = 0;
+    stockPrice = 10;
+    money = 100;
+    netWorth = money;
+    daysLeft = 5;
+    highestNetWorth = netWorth;
+    startingMoney = money;
+    updateDisplay();
+    document.getElementById('controls').style.display = 'block';
+    document.getElementById('gameOver').style.display = 'none';
+}
+
+updateDisplay();
+    </script>
+</body>
+</html>
